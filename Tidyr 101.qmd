@@ -65,6 +65,33 @@ ggplot(EuStockMarkets, aes(y = CAC, x = date))+   # here we tell the dataframe w
 There is no way to automate that if we use this type of solution (ex : if 20 type of data, have to make 20 geom_line = relou)
 
 
+### Tidyr solution
+The prbl we are facing is in fact simple, in the sens that its caused by the fact that the date is in wide format (= situation where u have a large nb of columns, cad each of the object (here the date) is described by multiple variables). Its not adapted in ggplot, bcs it normally prefers long format (where a object is spreaded in multiple rows, instead of multiple columns). 
+Ex of long format :
+
+| Center | Center | Center |
+|:------:|:------:|:------:|
+| date   | name   | value  |
+| 1991   | DAX    | ...    |
+| 1991   | CAC    | ...    |
+| 1991   | SMI    | ...    |
+| 1991   | FTSE   | ...    |
+
+2 main functions in tidyr : pivot longer / pivot wider (= pivot smthing in long format to wide format)
+```{r}
+EuStockMarkets |>
+  pivot_longer(!date, names_to = "index") |>
+  slice_head(n=10) |>
+  knitr::kable()
+```
+
+```{r}
+EuStockMarkets |>
+  pivot_longer(!date, names_to = "index") |>
+  ggplot(aes(x = date, y = value, color=index))+
+  geom_line()
+```
+Great, we have a legend (automatically)
 
 
 
