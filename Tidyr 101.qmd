@@ -1,0 +1,39 @@
+---
+title: "Tidyr-101"
+author : "Daphné Perry"
+format: 
+  html: default
+  pdf : default 
+---
+
+```{r}
+here::i_am("git-101.Rproj")
+library(here)
+```
+
+```{r}
+#| message: false
+library(ggplot2)
+```
+
+```{r}
+data("EuStockMarkets")
+```
+
+## Displaying one time series
+Lets first show the evolution of the DAX: 
+ 
+```{r}
+ggplot(EuStockMarkets, aes(y = DAX, x = time(EuStockMarkets)))+
+  geom_line()
+```
+Here we apply the time function to the data frame, bcs we donc have a date/the time on the dataframe (bcs in fact its a data frame of time series, so the 4 time series are collected at the same date).
+Ggplot is complaining a bit, bcs u need an additionnal package to leverage the time series w/ ggplot. 
+
+
+
+
+
+
+
+
