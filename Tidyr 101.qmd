@@ -15,6 +15,7 @@ library(here)
 #| message: false
 library(ggplot2)
 library(dplyr)
+library(tidyr)
 ```
 
 ```{r}
@@ -31,6 +32,37 @@ ggplot(EuStockMarkets, aes(y = DAX, x = time(EuStockMarkets)))+
 Here we apply the time function to the data frame, bcs we donc have a date/the time on the dataframe (bcs in fact its a data frame of time series, so the 4 time series are collected at the same date).
 Ggplot is complaining a bit, bcs u need an additionnal package to leverage the time series w/ ggplot. 
 
+So now, to do that cleanly: 
+```{r}
+EuStockMarkets <-
+  EuStockMarkets |> 
+    as_tibble() |> ## could be as.data.frame 
+    mutate(date = as.numeric(time(EuStockMarkets)))
+```
+
+Now lets try again the graph rpztation
+```{r}
+ggplot(EuStockMarkets, aes(y = DAX, x = date))+
+  geom_line()
+```
+
+Now, if we'd like to have also the CaC on the same graph, here to have it alone : 
+```{r}
+ggplot(EuStockMarkets, aes(y = CAC, x = date))+
+  geom_line()
+```
+
+## Two indexes on the same grpah rpztation
+So here we try to have DAX & CAC on the same graph rpztation
+
+### Poor man's solution
+
+```{r}
+ggplot(EuStockMarkets, aes(y = CAC, x = date))+   # here we tell the dataframe we're working on & the mapping, that's the 1st graph rpztation
+  geom_line(color="forestgreen")+  # we can add as many geom_line as we want
+  geom_line(mapping = aes(y=DAX), color="darkred")   #don't modif the x, bcs we already mapped it in the 1st line
+```
+There is no way to automate that if we use this type of solution (ex : if 20 type of data, have to make 20 geom_line = relou)
 
 
 
