@@ -14,6 +14,7 @@ library(here)
 ```{r}
 #| message: false
 library(ggplot2)
+library(dplyr)
 ```
 
 ```{r}
