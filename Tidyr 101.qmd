@@ -79,20 +79,54 @@ Ex of long format :
 
 2 main functions in tidyr : pivot longer / pivot wider (= pivot smthing in long format to wide format)
 ```{r}
-EuStockMarkets |>
+EuStockMarkets |>     ## this is a classical dataframe, but prbl = the mapping in ggplot is columnwise (can't ask for a plot of subsets of columns ->to do that, use pivoting)
   pivot_longer(!date, names_to = "index") |>
   slice_head(n=10) |>
   knitr::kable()
 ```
+In this direction of pivoting, essentially we say to pivot longer, we could ask to pivot everything (even if useless in this setting): 
+```{r}
+EuStockMarkets|>
+  pivot_longer(everything()) |>
+  slice_head(n=10) |>
+  knitr::kable()
+```
+This is a very bad pivoting bcs I cannot go back to the original dataframe. That's why need to pivot over an index. 
+Now let's pivot on the DAX and on the SMI: 
+```{r}
+EuStockMarkets|>
+  pivot_longer(DAX | SMI) |>   #twisted to do that, only if data is very oddly formated. 
+  slice_head(n=10) |>
+  knitr::kable()
+```
+
+
 
 ```{r}
-EuStockMarkets |>
+EuStockMarkets |>        
   pivot_longer(!date, names_to = "index") |>
   ggplot(aes(x = date, y = value, color=index))+
   geom_line()
 ```
-Great, we have a legend (automatically)
- 
+Great, we have a legend (automatically). 
+Longer is mostly used too do graphs like that but also to do stats w/out using across. 
+### More pivoting
+
+Lets say I want to compute the average of the indexes (even if that doesn't really makes sens here: we know how to operate on 1 column, how to do the same function on multiple columns, but we don't know how to do yet on a row ->possible to use roow wise, but also can use pivoting! 
+Pivot could be useful in computing the average of the first 3 markets. The trick is when u pivot, then suddently something that was column oriented becomes column oriented. 
+
+#### Working on rows with pivoting
+```{r}
+EuStockMarkets|>
+  select(!FTSE)|> #we don't want to include the FTSE
+  pivot_longer(!date)|> #we want to pivot everything except the date
+  summarise(avg_stock=mean(value), .by = date) |> #there we don't get the average mean but the mean by date!
+  slice_head(n=10) |>
+  knitr::kable()
+```
+
+
+
 
 
 
