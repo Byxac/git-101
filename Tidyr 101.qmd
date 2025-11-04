@@ -124,10 +124,84 @@ EuStockMarkets|>
   slice_head(n=10) |>
   knitr::kable()
 ```
+#### Alternative w/ 'rowwise'
+
+```{r}
+EuStockMarkets|>
+  select(!FTSE)|>
+  rowwise()|>
+  summarise(date, avg_stock = mean(c(DAX, SMI, CAC)))|>
+  slice_head(n=10) |>
+  knitr::kable()
+```
+Here we are asking to compute what is in each row, and not what is in each column! 
+We can do some tricks w/across to avoid specifying all the varis as we did here. 
 
 
+### Reverse operations: pivot to a wider format
+```{r}
+EuLong <-
+  EuStockMarkets|>
+  pivot_longer((!date))
+```
 
+```{r}
+EuLong|>
+  pivot_wider()|>
+  slice_head(n=10) |>
+  knitr::kable()
+```
 
+```{r}
+EuLong|>
+  pivot_wider(id_cols= date)|> #same as before bcs it was done automatically
+  slice_head(n=10) |>
+  knitr::kable()
+```
+
+Now lets do another ex in which we don't have originally a long data frame but want nevertheless to turn it in wide: 
+
+```{r}
+data("diamonds")
+diamonds|>
+  summarise(count = n(), median_price=median(price), .by=c(cut, color)) |> #here we count the nb of diamonds by cut & color, and the median price for this type of diamonds
+  slice_head(n=10) |>
+  knitr::kable()
+```
+
+```{r}
+dgroup <-
+  diamonds |>
+  summarise(count = n(), median_price=median(price), .by=c(cut, color)) 
+```
+
+```{r}
+dgroup|>
+  select(!count)|>
+  pivot_wider(id_cols = cut, names_from=color, values_from=median_price)
+```
+Here we get smthing very classical: its not anymore a standard stat rpztation bcs not a single stat unit described by row. Her it's more rpztation oriented : at the intersection of a row & a column, we get the median price. 
+
+```{r}
+dgroup|> #possible to have multiple id columns: 
+  pivot_wider(id_cols = cut, names_from=color, values_from=c(median_price, count))
+```
+
+Missing data support: 
+```{r}
+dgroup|>
+  slice_sample(n=25)|> #here we are selecting a subset of 25 values of dgroup
+  pivot_wider(id_cols = cut, names_from=color, values_from=count)
+```
+Here we get NA bcs the premium cut doesn't have obs to the E color for instance->lets use a fnction from set.seed to get always the same rand set: 
+
+```{r}
+set.seed(42)
+dgroup|>
+  slice_sample(n=25)|> 
+  pivot_wider(id_cols = cut, names_from=color, values_from=count)
+```
+In R, most of the time, pivot longer is for technical, graph rpztation / wider is to transform a bad format into a format adapted to our analysis. 
 
 
 
