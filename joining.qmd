@@ -37,8 +37,19 @@ We look for the planet that has the largest ratio btw its mass and the mass of i
 ## Inner join
 
 ```{r}
-planet_star<-inner_join(planets, stars, by=join_by())
+planet_star<-inner_join(planets, stars, by=join_by(star_code))
 ```
+The order of the join is'nt important in an inner join. The simplest join_by I can have is when I have a vari name shared by the dataframes I'm working w/(which is the case here).Now I have 15 varis (8 from planets & 7 from stars bcs already have tthe star code). 
+
+So the join is said to be inner in the sens that if the key is missing, then the corresponding planet isn't included in the new dataframe. Cad in an inner join we keep only matches btw the 2 dataframes (according the the 'join_by' vari(s)). Once we've done that, we can then do whatever we want, for ex, compute ratio: 
+
+```{r}
+planet_star|>
+  mutate(mass_ratio = `Mass (Sun)`/`relative mass (earth)`*sun_to_earth)|>
+  slice_max(mass_ratio)|>
+  select(P_NAME, star, mass_ratio)
+```
+
 
 
 
