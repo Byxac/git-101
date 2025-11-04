@@ -1,0 +1,48 @@
+---
+title: "Multiple data frames"
+author: "Daphné PERRY"
+format: 
+  html: default
+  pdf : default 
+---
+
+```{r}
+here::i_am("git-101.Rproj")
+library(here)
+```
+
+# Data loading
+
+```{r}
+#| message: false
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(vroom)
+```
+
+```{r}
+planets<-vroom(here("data", "ALL_PLANETS.csv"))
+stars<-vroom(here("data", "Liststars.csv"))
+```
+```{r}
+sun_to_earth<-33300
+```
+
+
+# Planet oriented analyses
+
+We look for the planet that has the largest ratio btw its mass and the mass of its star. We can't do that using the planets data frame only, we need to join it w/the stars data frame. 
+
+## Inner join
+
+```{r}
+planet_star<-inner_join(planets, stars, by=join_by())
+```
+
+
+
+
+
+
+
