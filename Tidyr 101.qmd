@@ -92,7 +92,7 @@ EuStockMarkets |>
   geom_line()
 ```
 Great, we have a legend (automatically)
-
+ 
 
 
 
