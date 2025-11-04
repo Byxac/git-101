@@ -49,10 +49,81 @@ planet_star|>
   slice_max(mass_ratio)|>
   select(P_NAME, star, mass_ratio)
 ```
+## Semi & Anti join
+
+To analyse missing matches, how can we find them in the data ? For that we have 2 operations that are not really join (bcs don't prod a new dataframe) but linked to it bcs give what would be prod by a join and then jsp
+```{r}
+planet_wout_star<-anti_join(planets, stars, by=join_by(star_code))
+```
+This gives us the planets without stars (therefore they aren't included in tthe planet_star data frame that we've created w/the innerjoin). It finds the object in the left (hte first dataframe) that doesn't have a match in the second (the right dataframe). 
+
+```{r}
+star_wout_planet<-anti_join(stars, planets, by=join_by(star_code))
+```
+->27 stars don't have a planet in our dataframe. 
+
+Something less usefull: semijoin = does the same thing in reverse : gives the planets that has a star & the stras that have a planet but w/out including the data (remove the data associated to star). 
+Usefull: semi join on star of the planet, bcs stars can have multiple planets.Then we just get the planets of the star, w/out including the data about the planet. 
+```{r}
+stars_w_planets <- semi_join(stars, planets, by=join_by(star_code))
+```
+
+So the anti join is usefull in general (point potential prbl is our data). 
+
+We have `r nrow(planet_wout_star)` planets w/out a corresponding star in the database and `r nrow(star_wout_planet)` stars w/out planets described in the database. 
 
 
+## Left & right join
+3 diff outer join : 
 
+- the left one will keep all the data in the 1st table (on the left) even if they don't have a match on the 2nd table. 
+- the right one will keep all the data in the 2nd table (on the left) even if they don't have a match on the 1st table.
+- the full one will keep everything, even if they don't have a match
 
+```{r}
+all_planets<-left_join(planets, stars, by = join_by(star_code))
+all_stars<-right_join(planets, stars, by = join_by(star_code))
+all_all<-full_join(planets, stars, by = join_by(star_code))
+```
+
+Lots of stars that don't have a planet -> that's why we have more obs in all_stars than in all_planets. 
+Choose right/left inner join depending on the stats we want to run, what we wanna do w/ the data. 
+
+# Star oriented analysis
+We're gonna interpre the absence of planet to the fact that there is non associated to the star: if a star doesn't appear in the planet data frame, this means that this star has no associated habitable planet. 
+
+To compute the distribution of the average nb of habitable planet per star: 
+```{r}
+planet_star |>
+  summarise(n=n(), .by=star_code) |>
+  ggplot(aes(x=n))+
+  geom_bar()
+```
+Large nb of stars w/ 1 habitable planet. This is wrong bcs we are missing here the stars w/out planet. 
+```{r}
+all_stars |>
+  summarise(n=n(), .by=star_code) |>
+  ggplot(aes(x=n))+
+  geom_bar()
+```
+
+Still nobody w/ 0 planet, even though we did now on the all_star dataset, which includes the stars w/out planet. 
+
+To fix this: 
+```{r}
+all_stars|>
+  summarise(n=sum(!is.na(PLANET_IDX)), .by=star_code)|>
+  ggplot(aes(x=n))+
+  geom_bar()
+```
+
+Alt solution: 
+```{r}
+all_stars|>
+  summarise(n=n_distinct(PLANET_IDX, na.rm=TRUE), .by=star_code)|>
+  ggplot(aes(x=n))+
+  geom_bar()
+```
 
 
 
